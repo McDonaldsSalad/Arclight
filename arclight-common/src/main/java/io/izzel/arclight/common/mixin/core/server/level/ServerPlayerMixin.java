@@ -617,14 +617,15 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements ServerPla
                 return;
             }
 
-            // NeoForge custom menu opening data may inspect ServerPlayer#containerMenu
-            // while the opening packet is being serialized. Make the Bukkit-approved
-            // menu active before that serialization occurs. This also respects a menu
-            // replaced by InventoryOpenEvent while leaving cancelled opens untouched.
+            // Accessories expects ServerPlayer#containerMenu to already reference its
+            // menu while NeoForge serializes the custom opening payload. Arclight normally
+            // updates containerMenu later, so expose it early only for Accessories menus.
             //
-            // Fixes modded menus such as Accessories on Arclight 1.21.1, where
-            // Accessories expects containerMenu to already be AccessoriesMenuBase.
-            this.containerMenu = container;
+            // Use a class-name check to avoid a compile-time dependency on Accessories and
+            // leave vanilla and all unrelated mod/plugin menus on Arclight's original path.
+            if (container.getClass().getName().startsWith("io.wispforest.accessories.")) {
+                this.containerMenu = container;
+            }
         }
         DecorationOps.blackhole().invoke();
     }

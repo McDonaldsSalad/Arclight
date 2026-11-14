@@ -44,7 +44,15 @@ configurations {
     }
 }
 
+// Architectury's production transformer reads JARs from architectury.classpath.
+// Gradle may supply project(':arclight-paper-api') as compile output directories,
+// which the transformer does not index for class hierarchy resolution.
+// Add the assembled API JAR explicitly so Bukkit types such as
+// org.bukkit.inventory.TransmuteRecipe can be resolved when frames are recomputed.
+def paperApiJar = project(':arclight-paper-api').tasks.named('jar')
+
 dependencies {
+    architecturyTransformerClasspath(files(paperApiJar.flatMap { it.archiveFile }))
     implementation libs.fabric.loader
 
     implementation project(':arclight-paper-api')
@@ -79,4 +87,9 @@ compileJava {
     options.compilerArgs << '-XDignore.symbol.file' << '-XDenableSunApiLintControl'
     options.annotationProcessorPath = configurations.annotationProcessor + configurations.mixinProcessorSupport
     options.encoding = 'UTF-8'
+}
+
+// Ensure the API JAR exists before the transformer resolves its classpath.
+tasks.named('transformProductionNeoForge') {
+    dependsOn paperApiJar
 }

@@ -53,6 +53,10 @@ public class ArclightBorderChangeListener implements BorderChangeListener {
 
     private void arclight$broadcastToDimension(WorldBorder border, Function<WorldBorder, Packet<?>> packet) {
         final var level = ((WorldBorderBridge) border).bridge$getWorld();
+        // Dimension/world borders may fire updates before their server world is available.
+        if (level == null || level.getServer() == null) {
+            return;
+        }
         level.getServer().getPlayerList().broadcastAll(packet.apply(border), level.dimension());
     }
 }

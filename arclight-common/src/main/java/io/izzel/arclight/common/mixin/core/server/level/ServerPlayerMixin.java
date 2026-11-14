@@ -616,6 +616,14 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements ServerPla
                 DecorationOps.cancel().invoke(OptionalInt.empty());
                 return;
             }
+
+            // Accessories reads player.containerMenu while NeoForge serializes
+            // menu-opening data, before Arclight normally assigns the new menu.
+            // Advance the assignment only for Accessories menus so other menus
+            // retain their original ordering and no Accessories dependency is needed.
+            if (container != null && container.getClass().getName().startsWith("io.wispforest.accessories.")) {
+                this.containerMenu = container;
+            }
         }
         DecorationOps.blackhole().invoke();
     }

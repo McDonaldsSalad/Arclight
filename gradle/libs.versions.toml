@@ -57,7 +57,7 @@ forge = '64.1.5'
 full-forge = '26.1.2-64.1.5'
 fabric-loader = '0.20.1'
 fabric-api = '0.155.3+26.1.2'
-neoforge = '26.1.2.122'
+neoforge = '26.1.2.126'
 fabric-permissions-api = '0.7.0'
 
 # spigot dependencies (CHECK when migrating Spigot Versions)

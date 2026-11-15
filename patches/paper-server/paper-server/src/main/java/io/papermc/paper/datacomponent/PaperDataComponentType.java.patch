@@ -1,0 +1,12 @@
+diff --git a/paper-server/src/main/java/io/papermc/paper/datacomponent/PaperDataComponentType.java b/paper-server/src/main/java/io/papermc/paper/datacomponent/PaperDataComponentType.java
+--- a/paper-server/src/main/java/io/papermc/paper/datacomponent/PaperDataComponentType.java
++++ b/paper-server/src/main/java/io/papermc/paper/datacomponent/PaperDataComponentType.java
+@@ -59,7 +59,7 @@
+ 
+     @SuppressWarnings({"unchecked"})
+     public static <NMS> DataComponentType of(final Holder<?> holder) {
+-        final DataComponentAdapter<NMS, ?> adapter = (DataComponentAdapter<NMS, ?>) DataComponentAdapters.ADAPTERS.get(holder.unwrapKey().orElseThrow());
++        final DataComponentAdapter<NMS, ?> adapter = (DataComponentAdapter<NMS, ?>) DataComponentAdapters.getOrCreateAdapter(holder.unwrapKey().orElseThrow());
+         if (adapter == null) {
+             throw new IllegalArgumentException("No adapter found for " + holder);
+         }

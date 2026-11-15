@@ -168,7 +168,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-@Mixin(ServerGamePacketListenerImpl.class)
+// Apply the Bukkit/Paper movement handler before mods such as Bumblezone (default
+// mixin priority 1000) inject into handleMoveVehicle. This keeps the expected
+// speed-check constant visible to their @ModifyConstant injector.
+@Mixin(value = ServerGamePacketListenerImpl.class, priority = 1100)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImplMixin implements ServerGamePacketListenerImplBridge {
 
     @Decorate(method = "handleSetGameRule(Lnet/minecraft/network/protocol/game/ServerboundSetGameRulePacket;)V",

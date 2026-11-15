@@ -58,14 +58,10 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BaseContainerBlock
 
     public List<HumanEntity> transaction = new ArrayList<>();
     private int maxStack = MAX_STACK;
-    private net.minecraft.world.item.crafting.RecipeType<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> recipeType; // Paper added
-
-    @org.spongepowered.asm.mixin.injection.Inject(method = "<init>", at = @At("RETURN"))
-    private void arclight$captureRecipeType(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state,
-            net.minecraft.world.item.crafting.RecipeType<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> recipeType,
-            org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
-        this.recipeType = recipeType;
-    }
+    // Minecraft 26.1.2 already owns and initializes this final field in <init>.
+    // Do not assign it from an injected handler: Java 25 rejects writes to final
+    // instance fields from any method other than the declaring constructor.
+    @Shadow @Final private net.minecraft.world.item.crafting.RecipeType<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> recipeType;
 
     @Override
     public net.minecraft.world.item.crafting.RecipeType<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> bridge$getRecipeType() {

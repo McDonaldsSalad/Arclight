@@ -378,7 +378,14 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
                     speed = this.player.getAbilities().walkingSpeed * 10.0f;
                 }
                 speed *= 2.0;
-                if (d11 - d10 > Math.max(100.0, Math.pow(10.0f * i * speed, 2.0)) && !this.isSingleplayerOwner()) {
+                // Bumblezone compat: its Beehemoth speed-check mixin cannot inject into
+                // Arclight's overwritten handleMoveVehicle. Preserve the mod's intended
+                // 300.0 threshold for Beehemoths, without loading any Bumblezone classes.
+                // All other vehicles keep the original 100.0 threshold.
+                double vehicleMoveThreshold = "the_bumblezone:beehemoth".equals(
+                    net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString())
+                    ? 300.0D : 100.0D;
+                if (d11 - d10 > Math.max(vehicleMoveThreshold, Math.pow(10.0f * i * speed, 2.0)) && !this.isSingleplayerOwner()) {
                     LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName().getString(), this.player.getName().getString(), d7, d8, d9);
                     this.send(new ClientboundMoveVehiclePacket(entity.position(), entity.getYRot(), entity.getXRot()));
                     return;

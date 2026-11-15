@@ -30,13 +30,13 @@ index 328cc1a7655c9b13c21fe47939fc1e03473e80a7..079eb4eb50585d0ae96d9b9acf528fc6
          register(DataComponents.VILLAGER_VARIANT, CraftVillager.CraftType::minecraftHolderToBukkit, CraftVillager.CraftType::bukkitToMinecraftHolder);
          register(DataComponents.WOLF_VARIANT, CraftWolf.CraftVariant::minecraftHolderToBukkit, CraftWolf.CraftVariant::bukkitToMinecraftHolder);
          register(DataComponents.WOLF_COLLAR, nms -> DyeColor.getByWoolData((byte) nms.getId()), api -> net.minecraft.world.item.DyeColor.byId(api.getWoolData()));
-@@ -238,6 +238,23 @@
+@@ -238,6 +238,25 @@
          registerInternal(key, UNIMPLEMENTED_TO_API_CONVERTER, DataComponentAdapter.API_TO_UNIMPLEMENTED_CONVERTER, false);
      }
  
 +    // NeoForge may register components after Paper's bootstrap scan. Expose the
 +    // registry identity, but never try to convert arbitrary mod component values.
-+    static DataComponentAdapter<?, ?> getOrCreateAdapter(final ResourceKey<DataComponentType<?>> key) {
++    static DataComponentAdapter<?, ?> getOrCreateAdapter(final ResourceKey<?> key) {
 +        final DataComponentAdapter<?, ?> adapter = ADAPTERS.get(key);
 +        if (adapter != null) {
 +            return adapter;
@@ -46,7 +46,9 @@ index 328cc1a7655c9b13c21fe47939fc1e03473e80a7..079eb4eb50585d0ae96d9b9acf528fc6
 +        if ("minecraft".equals(key.identifier().getNamespace())) {
 +            return null;
 +        }
-+        return ADAPTERS.computeIfAbsent(key, unused -> new DataComponentAdapter<>(
++        // Canonicalize the registry key with its declared type, without an unchecked cast.
++        final ResourceKey<DataComponentType<?>> dataComponentKey = ResourceKey.create(Registries.DATA_COMPONENT_TYPE, key.identifier());
++        return ADAPTERS.computeIfAbsent(dataComponentKey, unused -> new DataComponentAdapter<>(
 +            DataComponentAdapter.API_TO_UNIMPLEMENTED_CONVERTER, UNIMPLEMENTED_TO_API_CONVERTER, false
 +        ));
 +    }
@@ -54,7 +56,7 @@ index 328cc1a7655c9b13c21fe47939fc1e03473e80a7..079eb4eb50585d0ae96d9b9acf528fc6
      private static <NMS, API extends Handleable<NMS>> void register(final DataComponentType<NMS> type, final Function<NMS, API> vanillaToApi) {
          registerInternal(getKey(type), vanillaToApi, Handleable::getHandle, false);
      }
-@@ -247,9 +264,8 @@
+@@ -247,9 +266,8 @@
      }
  
      private static <NMS, API> void registerInternal(final ResourceKey<DataComponentType<?>> key, final Function<NMS, API> vanillaToApi, final Function<API, NMS> apiToVanilla, final boolean codecValidation) {
